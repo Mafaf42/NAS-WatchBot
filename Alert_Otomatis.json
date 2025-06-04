@@ -1,0 +1,247 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1280,
+        200
+      ],
+      "id": "5eb55824-f049-4c84-bc94-6d848a92eaf6",
+      "name": "Trigger Setiap 5 Menit"
+    },
+    {
+      "parameters": {
+        "url": "https://100.121.40.42/api/v2.0/pool/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 2-OfggKTuwinXnSFnL2N4gdJHpTGJi1MuVQSAT6kPbCrS9h0PE3ZVFvXGHMFRiXxJS"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -960,
+        80
+      ],
+      "id": "e8d81244-4aa7-4eb8-817f-3f00c09e32ec",
+      "name": "Disk Info Req"
+    },
+    {
+      "parameters": {
+        "url": "https://100.121.40.42/api/v2.0/system/info",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 2-OfggKTuwinXnSFnL2N4gdJHpTGJi1MuVQSAT6kPbCrS9h0PE3ZVFvXGHMFRiXxJS"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -960,
+        280
+      ],
+      "id": "86fa255d-ac12-4489-92db-28dfc40e7b96",
+      "name": "CPU Load Info Req"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        -700,
+        180
+      ],
+      "id": "2b648715-49df-4332-b454-d2dd694390e3",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputItems = $input.all();\n\nconst diskInfo = inputItems[0].json;\nconst cpuInfo = inputItems[1].json;\n\n// Disk usage percentage\nconst totalDisk = diskInfo.size || 1;\nconst usedDisk = diskInfo.allocated || 0;\nconst diskUsagePercent = (usedDisk / totalDisk) * 100;\n\n// Normalize CPU load by number of cores\nconst loadavg1min = cpuInfo.loadavg?.[0] || 0;\nconst totalCores = cpuInfo.cores || 1;\nconst cpuLoadPercent = (loadavg1min / totalCores) * 100;\n\nreturn [\n  {\n    json: {\n      cpuLoadPercent: parseFloat(cpuLoadPercent.toFixed(2)),\n      diskUsagePercent: parseFloat(diskUsagePercent.toFixed(2))\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        180
+      ],
+      "id": "db361817-ea40-4215-a2b4-82f0960115e3",
+      "name": "Fetch Info"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "51bde548-abb2-4443-b34f-9226b163b45b",
+              "leftValue": "={{ $json.cpuLoadPercent }}",
+              "rightValue": 80,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            },
+            {
+              "id": "41bb839d-00eb-47ef-9712-f8d515f90de4",
+              "leftValue": "={{ $json.diskUsagePercent }}",
+              "rightValue": 90,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -300,
+        180
+      ],
+      "id": "896baed1-efe3-432c-b2ca-010436ba9a05",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "=7032932158",
+        "text": "=🚨 *System Resource Alert*  *CPU Load:* {{ $json[\"cpuLoadPercent\"] }}% *Disk Usage:* {{ $json[\"diskUsagePercent\"] }}%  ⚠️ One or more resource thresholds have been exceeded. Please investigate the server performance.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "83ecb6ef-1a27-4a72-b6fe-4d1590f9ad76",
+      "name": "Telegram",
+      "webhookId": "d192472b-0f83-4461-85c0-d8f649066b64",
+      "credentials": {
+        "telegramApi": {
+          "id": "dqHfUNVt0CO3UaJW",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Trigger Setiap 5 Menit": {
+      "main": [
+        [
+          {
+            "node": "Disk Info Req",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "CPU Load Info Req",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Disk Info Req": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CPU Load Info Req": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Fetch Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Info": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1be6d0d8-6f71-4d95-ac45-73f00361fc52",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d23b8517be5bf7cf68b30c868912fcd224bb266c04332272b261f9d3dbeccb48"
+  },
+  "id": "OyVeGjXHEUvougYB",
+  "tags": []
+}

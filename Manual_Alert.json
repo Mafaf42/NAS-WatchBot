@@ -1,0 +1,243 @@
+{
+  "name": "Manual Alert 2",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d20f2705-1b21-4f18-bf35-bf83419efbb0",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "Status nas",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        120,
+        180
+      ],
+      "id": "f2fdd7a4-63a6-4df4-b0c1-194e677e4bfc",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "url": "https://100.121.40.42/api/v2.0/system/info",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 1-YZG22EI4LgVpCizzHtHgbtBLKLmPxP7ALZbLsMMkExUe8x3huKEmL5RByPSWLBEb"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        340,
+        40
+      ],
+      "id": "d14e658a-2567-49c8-ae12-c7ee47244d24",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -80,
+        180
+      ],
+      "id": "0c74b24f-cc1f-42d4-9af5-abe863ecd5a5",
+      "name": "Telegram Trigger",
+      "webhookId": "b552a1e4-f51d-4938-9480-9448430706e1",
+      "credentials": {
+        "telegramApi": {
+          "id": "dqHfUNVt0CO3UaJW",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://100.121.40.42/api/v2.0/pool/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 1-YZG22EI4LgVpCizzHtHgbtBLKLmPxP7ALZbLsMMkExUe8x3huKEmL5RByPSWLBEb"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        340,
+        -120
+      ],
+      "id": "34985080-a7ba-44ab-9bc4-7b6d6feee552",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        620,
+        20
+      ],
+      "id": "96f7deec-105a-478a-9763-fc9d148fccee",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputItems = $input.all();\n\nconst diskInfo = inputItems[0].json;\nconst cpuInfo = inputItems[1].json;\n\n// Disk usage percentage\nconst totalDisk = diskInfo.size || 1;\nconst usedDisk = diskInfo.allocated || 0;\nconst diskUsagePercent = (usedDisk / totalDisk) * 100;\n\n// Normalize CPU load by number of cores\nconst loadavg1min = cpuInfo.loadavg?.[0] || 0;\nconst totalCores = cpuInfo.cores || 1;\nconst cpuLoadPercent = (loadavg1min / totalCores) * 100;\n\nreturn [\n  {\n    json: {\n      cpuLoadPercent: parseFloat(cpuLoadPercent.toFixed(2)),\n      diskUsagePercent: parseFloat(diskUsagePercent.toFixed(2))\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        840,
+        20
+      ],
+      "id": "f090accb-348f-42e2-b038-e2997a321e0d",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').all()[0].json.message.chat.id }}",
+        "text": "=🚨 *System Resource Report*\nCPU Usage: {{ $json.cpuLoadPercent }} %\nDisk Usage: {{ $json.diskUsagePercent }} %",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1060,
+        20
+      ],
+      "id": "8f4a7287-5b17-4d0c-8405-d2ccb8205b62",
+      "name": "Telegram",
+      "webhookId": "8218847d-18d3-4cd9-bcfc-c81b853aa5f3",
+      "credentials": {
+        "telegramApi": {
+          "id": "dqHfUNVt0CO3UaJW",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c9807039-71ae-4374-8aa9-56e0367f7742",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d23b8517be5bf7cf68b30c868912fcd224bb266c04332272b261f9d3dbeccb48"
+  },
+  "id": "gCPbxXvoEeYMnMOF",
+  "tags": []
+}
