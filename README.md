@@ -27,13 +27,13 @@ Jalankan perintah berikut untuk menghentikan dan menjalankan kembali container:
 ### 3. Jalankan ngrok
 Gunakan perintah:
 ```yaml
-      `ngrok http 5678`
+      ngrok http 5678
 ```
 
 ### 4. Tambahkan Kredensial Telegram
 Gunakan API token berikut untuk bot Telegram Anda:
 ```yaml
-`7822606038:AAFDLV0cQbxaw9yaatZ69-l21IXq-uNumpQ`
+7822606038:AAFDLV0cQbxaw9yaatZ69-l21IXq-uNumpQ
 ```
 
 ⚙️ Workflow: Manual Alert
@@ -48,20 +48,25 @@ Mengecek apakah isi pesan persis adalah Status nas (case sensitive).
 
 ### 3. HTTP Request 1 (Disk Info)
 Mengambil informasi disk dari endpoint:
-`https://100.121.40.42/api/v2.0/pool/`
+```yaml
+https://100.121.40.42/api/v2.0/pool/
+```
 
 ### 4. HTTP Request 2 (CPU Info)
 Mengambil informasi CPU dari endpoint:
-`https://100.121.40.42/api/v2.0/system/info`
+```yaml
+https://100.121.40.42/api/v2.0/system/info
+```
 
 ### 5. Merge Node
 Menggabungkan hasil dari dua HTTP Request tersebut.
 
 ### 6. Function Node
 Menghitung persentase penggunaan:
+```yaml
       CPU (berdasarkan beban per core)
       Disk (berdasarkan total dan allocated size)
-
+```
 ### 7. Telegram Send Message Node
 Mengirimkan hasil penggunaan CPU dan Disk kepada pengguna Telegram yang mengirim perintah.
 
@@ -74,11 +79,15 @@ Menjalankan workflow secara otomatis setiap 5 menit.
 
 ### 2. HTTP Request 1 (Disk Info)
 Sama seperti pada manual alert:
-`https://100.121.40.42/api/v2.0/pool/`
+```yaml
+https://100.121.40.42/api/v2.0/pool/
+```
 
 ### 3. HTTP Request 2 (CPU Info)
 Sama seperti pada manual alert:
-`https://100.121.40.42/api/v2.0/system/info`
+```yaml
+https://100.121.40.42/api/v2.0/system/info
+```
 
 ### 4. Merge Node
 Menggabungkan hasil dari kedua HTTP Request.
@@ -88,8 +97,10 @@ Menghitung persentase penggunaan CPU dan Disk.
 
 ### 6. IF Node
 Mengevaluasi kondisi berikut:
+```yaml
       CPU usage di bawah 80%
       Disk usage di bawah 90%
+```
 Jika kondisi tidak terpenuhi, maka workflow akan mengirim peringatan.
 
 ### 7. Telegram Send Message Node
