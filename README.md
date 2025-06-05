@@ -19,16 +19,22 @@ Tambahkan konfigurasi berikut di bagian `environment`:
 
 ### 2. Jalankan Perintah Docker
 Jalankan perintah berikut untuk menghentikan dan menjalankan kembali container:
+```yaml
   docker-compose down
   docker-compose up -d
+```
 
 ### 3. Jalankan ngrok
 Gunakan perintah:
+```yaml
       `ngrok http 5678`
+```
 
 ### 4. Tambahkan Kredensial Telegram
 Gunakan API token berikut untuk bot Telegram Anda:
+```yaml
 `7822606038:AAFDLV0cQbxaw9yaatZ69-l21IXq-uNumpQ`
+```
 
 ⚙️ Workflow: Manual Alert
 Workflow ini akan memantau sistem berdasarkan perintah manual yang dikirim oleh pengguna ke bot Telegram.
