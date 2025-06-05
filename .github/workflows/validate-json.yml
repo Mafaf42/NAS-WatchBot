@@ -1,1 +1,25 @@
+name: Validate JSON workflows
+
+on:
+  push:
+    paths:
+      - 'workflows/*.json'
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install jq
+        run: sudo apt-get install jq
+
+      - name: Validate JSON files in workflows/
+        run: |
+          for file in workflows/*.json; do
+            echo "Validating $file"
+            jq empty "$file"
+          done
 
