@@ -13,21 +13,21 @@ Sebelum menggunakan kedua workflow, pastikan Anda mengikuti langkah berikut untu
 ### 1. Modifikasi `docker-compose.yaml`
 Tambahkan konfigurasi berikut di bagian `environment`:
 ```yaml
-      - WEBHOOK_URL=https://2ade-114-10-47-129.ngrok-free.app
-      - N8N_PORT=5678
+- WEBHOOK_URL=https://2ade-114-10-47-129.ngrok-free.app
+- N8N_PORT=5678
 ```
 
 ### 2. Jalankan Perintah Docker
 Jalankan perintah berikut untuk menghentikan dan menjalankan kembali container:
 ```yaml
-  docker-compose down
-  docker-compose up -d
+docker-compose down
+docker-compose up -d
 ```
 
 ### 3. Jalankan ngrok
 Gunakan perintah:
 ```yaml
-      ngrok http 5678
+ngrok http 5678
 ```
 
 ### 4. Tambahkan Kredensial Telegram
@@ -64,8 +64,8 @@ Menggabungkan hasil dari dua HTTP Request tersebut.
 ### 6. Function Node
 Menghitung persentase penggunaan:
 ```yaml
-      CPU (berdasarkan beban per core)
-      Disk (berdasarkan total dan allocated size)
+CPU (berdasarkan beban per core)
+Disk (berdasarkan total dan allocated size)
 ```
 ### 7. Telegram Send Message Node
 Mengirimkan hasil penggunaan CPU dan Disk kepada pengguna Telegram yang mengirim perintah.
@@ -98,8 +98,8 @@ Menghitung persentase penggunaan CPU dan Disk.
 ### 6. IF Node
 Mengevaluasi kondisi berikut:
 ```yaml
-      CPU usage di bawah 80%
-      Disk usage di bawah 90%
+CPU usage di bawah 80%
+Disk usage di bawah 90%
 ```
 Jika kondisi tidak terpenuhi, maka workflow akan mengirim peringatan.
 
