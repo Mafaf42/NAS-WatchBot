@@ -36,7 +36,7 @@ Gunakan API token berikut untuk bot Telegram Anda:
 7822606038:AAFDLV0cQbxaw9yaatZ69-l21IXq-uNumpQ
 ```
 
-⚙️ Workflow: Manual Alert
+## ⚙️ Workflow: Manual Alert
 Workflow ini akan memantau sistem berdasarkan perintah manual yang dikirim oleh pengguna ke bot Telegram.
 
 Langkah Kerja:
@@ -70,7 +70,7 @@ Disk (berdasarkan total dan allocated size)
 ### 7. Telegram Send Message Node
 Mengirimkan hasil penggunaan CPU dan Disk kepada pengguna Telegram yang mengirim perintah.
 
-🔁 Workflow: Alert Otomatis
+## 🔁 Workflow: Alert Otomatis
 Workflow ini secara otomatis melakukan monitoring sistem setiap 5 menit dan mengirimkan peringatan apabila terjadi pelampauan ambang batas penggunaan.
 
 Langkah Kerja:
