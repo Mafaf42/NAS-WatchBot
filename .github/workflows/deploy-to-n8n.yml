@@ -1,46 +1,47 @@
-name: Deploy to n8n
+name: Deploy Workflows to n8n
 
 on:
-workflow_dispatch: # ⬅️ Ini penting untuk memunculkan tombol "Run workflow"
+  push:
+    paths:
+      - workflows/*.json
+  workflow_dispatch:
 
 jobs:
-deploy:
-runs-on: ubuntu-latest
+  deploy:
+    runs-on: ubuntu-latest
     steps:
-  - name: Checkout repository
-    uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-  - name: Install jq
-    run: |
-      sudo apt-get update
-      sudo apt-get install -y jq
+      - name: Install jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
 
-  - name: Deploy each workflow to n8n
-    env:
-      N8N_API_URL: ${{ secrets.N8N_API_URL }}
-      N8N_API_KEY: ${{ secrets.N8N_API_KEY }}
-    run: |
-      for file in workflows/*.json; do
-        echo "Deploying $file..."
+      - name: Deploy workflows to self-hosted n8n
+        env:
+          N8N_API_URL: ${{ secrets.N8N_API_URL }}
+          N8N_API_KEY: ${{ secrets.N8N_API_KEY }}
+        run: |
+          for file in workflows/*.json; do
+            NAME=$(jq -r .name "$file")
+            echo "🚀 Deploying $NAME from $file"
 
-        NAME=$(jq -r .name "$file")
+            WORKFLOW_ID=$(curl -s "$N8N_API_URL/workflows" \
+              -H "Authorization: Bearer $N8N_API_KEY" \
+              | jq -r ".data[] | select(.name==\"$NAME\") | .id")
 
-        # Cek apakah workflow sudah ada
-        EXISTING_ID=$(curl -s "$N8N_API_URL/workflows" \
-          -H "Authorization: Bearer $N8N_API_KEY" \
-          | jq -r ".data[] | select(.name==\"$NAME\") | .id")
-
-        if [ -n "$EXISTING_ID" ]; then
-          echo "🔁 Updating: $NAME"
-          curl -s -X PUT "$N8N_API_URL/workflows/$EXISTING_ID" \
-            -H "Authorization: Bearer $N8N_API_KEY" \
-            -H "Content-Type: application/json" \
-            --data @"$file"
-        else
-          echo "🆕 Creating new workflow: $NAME"
-          curl -s -X POST "$N8N_API_URL/workflows" \
-            -H "Authorization: Bearer $N8N_API_KEY" \
-            -H "Content-Type: application/json" \
-            --data @"$file"
-        fi
-      done
+            if [ -n "$WORKFLOW_ID" ]; then
+              echo "🔄 Updating $NAME..."
+              curl -s -X PUT "$N8N_API_URL/workflows/$WORKFLOW_ID" \
+                -H "Authorization: Bearer $N8N_API_KEY" \
+                -H "Content-Type: application/json" \
+                --data @"$file"
+            else
+              echo "🆕 Creating $NAME..."
+              curl -s -X POST "$N8N_API_URL/workflows" \
+                -H "Authorization: Bearer $N8N_API_KEY" \
+                -H "Content-Type: application/json" \
+                --data @"$file"
+            fi
+          done
