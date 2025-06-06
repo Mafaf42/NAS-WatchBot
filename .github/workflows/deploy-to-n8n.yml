@@ -18,12 +18,22 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq
 
+      - name: Validate JSON files
+        run: |
+          for file in workflows/*.json; do
+            echo "🔍 Validating $file..."
+            jq empty "$file"
+          done
+
       - name: Deploy workflows to self-hosted n8n
         env:
           N8N_API_URL: ${{ secrets.N8N_API_URL }}
           N8N_API_KEY: ${{ secrets.N8N_API_KEY }}
         run: |
           for file in workflows/*.json; do
+            echo "📂 File content:"
+            cat "$file"
+
             NAME=$(jq -r .name "$file")
             echo "🚀 Deploying $NAME from $file"
 
@@ -33,13 +43,13 @@ jobs:
 
             if [ -n "$WORKFLOW_ID" ]; then
               echo "🔄 Updating $NAME..."
-              curl -s -X PUT "$N8N_API_URL/workflows/$WORKFLOW_ID" \
+              curl -v -X PUT "$N8N_API_URL/workflows/$WORKFLOW_ID" \
                 -H "Authorization: Bearer $N8N_API_KEY" \
                 -H "Content-Type: application/json" \
                 --data @"$file"
             else
               echo "🆕 Creating $NAME..."
-              curl -s -X POST "$N8N_API_URL/workflows" \
+              curl -v -X POST "$N8N_API_URL/workflows" \
                 -H "Authorization: Bearer $N8N_API_KEY" \
                 -H "Content-Type: application/json" \
                 --data @"$file"
