@@ -13,11 +13,7 @@
       },
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [
-        -1280,
-        200
-      ],
-      "id": "5eb55824-f049-4c84-bc94-6d848a92eaf6",
+      "position": [-1280, 200],
       "name": "Trigger Setiap 5 Menit"
     },
     {
@@ -38,11 +34,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        -960,
-        80
-      ],
-      "id": "e8d81244-4aa7-4eb8-817f-3f00c09e32ec",
+      "position": [-960, 80],
       "name": "Disk Info Req"
     },
     {
@@ -63,22 +55,14 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        -960,
-        280
-      ],
-      "id": "86fa255d-ac12-4489-92db-28dfc40e7b96",
+      "position": [-960, 280],
       "name": "CPU Load Info Req"
     },
     {
       "parameters": {},
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.1,
-      "position": [
-        -700,
-        180
-      ],
-      "id": "2b648715-49df-4332-b454-d2dd694390e3",
+      "position": [-700, 180],
       "name": "Merge"
     },
     {
@@ -87,11 +71,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -480,
-        180
-      ],
-      "id": "db361817-ea40-4215-a2b4-82f0960115e3",
+      "position": [-480, 180],
       "name": "Fetch Info"
     },
     {
@@ -129,11 +109,7 @@
       },
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
-      "position": [
-        -300,
-        180
-      ],
-      "id": "896baed1-efe3-432c-b2ca-010436ba9a05",
+      "position": [-300, 180],
       "name": "If"
     },
     {
@@ -144,19 +120,8 @@
       },
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [
-        0,
-        0
-      ],
-      "id": "83ecb6ef-1a27-4a72-b6fe-4d1590f9ad76",
-      "name": "Telegram",
-      "webhookId": "d192472b-0f83-4461-85c0-d8f649066b64",
-      "credentials": {
-        "telegramApi": {
-          "id": "dqHfUNVt0CO3UaJW",
-          "name": "Telegram account"
-        }
-      }
+      "position": [0, 0],
+      "name": "Telegram"
     }
   ],
   "pinData": {},
@@ -232,16 +197,10 @@
         ]
       ]
     }
-  },
+  ],
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "1be6d0d8-6f71-4d95-ac45-73f00361fc52",
-  "meta": {
-    "templateCredsSetupCompleted": true,
-    "instanceId": "d23b8517be5bf7cf68b30c868912fcd224bb266c04332272b261f9d3dbeccb48"
-  },
-  "id": "OyVeGjXHEUvougYB",
   "tags": []
 }
