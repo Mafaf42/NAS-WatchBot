@@ -1,9 +1,10 @@
-name: Deploy n8n Workflows
+name: Deploy Workflows to n8n
 
 on:
   push:
     paths:
-      - "workflows/*.json"
+      - workflows/*.json
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -14,24 +15,42 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install jq
-        run: sudo apt-get install jq -y
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
 
-      - name: Clean and deploy workflows to n8n
+      - name: Deploy workflows to self-hosted n8n
         env:
-          N8N_URL: ${{ secrets.N8N_URL }}
+          N8N_API_URL: ${{ secrets.N8N_API_URL }}
           N8N_API_KEY: ${{ secrets.N8N_API_KEY }}
         run: |
           for file in workflows/*.json; do
-            echo "Processing $file..."
+            NAME=$(jq -r .name "$file")
+            echo "🚀 Deploying $NAME from $file"
 
-            # Remove disallowed fields before POST
-            jq 'del(.id, .versionId, .webhookId, .meta)' "$file" > cleaned.json
+            # Bersihkan file JSON dari field yang tidak boleh dikirim
+            CLEANED_FILE="cleaned-$(basename "$file")"
+            jq 'del(.id, .versionId, .webhookId, .meta)' "$file" > "$CLEANED_FILE"
 
-            echo "Posting cleaned workflow to $N8N_URL"
-            curl -X POST "$N8N_URL/rest/workflows" \
+            # Cek apakah workflow sudah ada
+            WORKFLOW_ID=$(curl -s "$N8N_API_URL/workflows" \
               -H "Authorization: Bearer $N8N_API_KEY" \
-              -H "Content-Type: application/json" \
-              --data-binary @cleaned.json
+              | jq -r ".data[] | select(.name==\"$NAME\") | .id")
 
-            rm cleaned.json
+            if [ -n "$WORKFLOW_ID" ]; then
+              echo "🔄 Updating $NAME..."
+              curl -s -X PUT "$N8N_API_URL/workflows/$WORKFLOW_ID" \
+                -H "Authorization: Bearer $N8N_API_KEY" \
+                -H "Content-Type: application/json" \
+                --data @"$CLEANED_FILE"
+            else
+              echo "🆕 Creating $NAME..."
+              curl -s -X POST "$N8N_API_URL/workflows" \
+                -H "Authorization: Bearer $N8N_API_KEY" \
+                -H "Content-Type: application/json" \
+                --data @"$CLEANED_FILE"
+            fi
+
+            # Opsional: Hapus file sementara
+            rm "$CLEANED_FILE"
           done
