@@ -1,23 +1,23 @@
-  - name: Install dependencies
-    run: sudo apt-get install -y jq
+ - name: Install dependencies
+   run: sudo apt-get install -y jq
 
-  - name: Modify workflows
-    run: bash scripts/modify-workflows.sh
+ - name: Modify workflows
+   run: bash scripts/modify-workflows.sh
 
-  - name: Set up Node.js
-    uses: actions/setup-node@v4
-    with:
-      node-version: '20'
+ - name: Set up Node.js
+   uses: actions/setup-node@v4
+   with:
+     node-version: '20'
 
-  - name: Lint workflows
-    run: node validators/lint-json.js
+ - name: Lint workflows
+   run: node validators/lint-json.js
 
-  - name: Commit and Push if changed
-    run: |
-      git config user.name "github-actions[bot]"
-      git config user.email "github-actions[bot]@users.noreply.github.com"
-      if ! git diff --quiet; then
-        git add workflows/*.json
-        git commit -m "chore: auto-modified workflows via CI"
-        git push
-      fi
+ - name: Commit and Push if changed
+   run: |
+     git config user.name "github-actions[bot]"
+     git config user.email "github-actions[bot]@users.noreply.github.com"
+     if ! git diff --quiet; then
+       git add workflows/*.json
+       git commit -m "chore: auto-modified workflows via CI"
+       git push
+    fi
